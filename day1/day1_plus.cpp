@@ -2,6 +2,7 @@
 #include <fstream>
 #include <map>
 #include <algorithm>
+#include <optional>
 
 std::map<std::string, int64_t> allowed_names_normal = {
     {"one", 1},
@@ -15,33 +16,44 @@ std::map<std::string, int64_t> allowed_names_normal = {
     {"nine", 9}
 };
 
-std::map<std::string, int64_t> allowed_names_reversed = {
-    {"eno", 1},
-    {"owt", 2},
-    {"eerht", 3},
-    {"ruof", 4},
-    {"evif", 5},
-    {"xis", 6},
-    {"neves", 7},
-    {"thgie", 8},
-    {"enin", 9}
-};
+std::map<std::string, int64_t> allowed_names_reversed = [] {
+    std::map<std::string, int64_t> reversed;
+    for (const auto& [name, value]: allowed_names_normal) {
+        reversed[std::string(name.rbegin(), name.rend())] = value;
+    }
+    return reversed;
+}();
+
+std::optional<int64_t> is_digit(const char& c) {
+    if (c >= '0' && c <= '9') {
+        return c - '0';
+    }
+    return {};
+}
+
+std::optional<int64_t> is_letterized_digit(
+    const std::string& str,
+    const size_t idx,
+    const std::map<std::string, int64_t>& allowed_names
+) {
+    for (const auto& [name, value]: allowed_names) {
+        if (str.substr(idx, name.size()) == name) {
+            return value;
+        }
+    }
+    return {};
+}
 
 int64_t find_first_digits(const std::string& str, const std::map<std::string, int64_t>& allowed_names) {
-    std::map<size_t, int64_t> saved;
-    for (const auto& [name, value]: allowed_names) {
-        if (auto pos = str.find(name); pos != std::string::npos) {
-            saved[pos] = value;
+    for (size_t idx = 0; idx < str.size(); ++idx) {
+        if (const auto digit = is_digit(str[idx])) {
+            return *digit;
+        }
+        if (const auto digit = is_letterized_digit(str, idx, allowed_names)) {
+            return *digit;
         }
     }
-
-    for (char it = '0'; it <= '9'; ++it) {
-        if (auto pos = str.find(it); pos != std::string::npos) {
-            saved[pos] = it - '0';
-        }
-    }
-
-    return saved.begin()->second;
+    return 0;
 }
 
 int64_t solve(const std::string& filename) {
@@ -51,7 +63,7 @@ int64_t solve(const std::string& filename) {
     int64_t sum = 0;
     while (std::getline(file, str)) {
         const auto first_digit = find_first_digits(str, allowed_names_normal);
-        std::reverse(str.begin(), str.end());
+        std::ranges::reverse(str);
         const auto last_digit = find_first_digits(str, allowed_names_reversed);
         sum += first_digit * 10 + last_digit;
     }

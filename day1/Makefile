@@ -2,7 +2,7 @@
 GCC = gcc
 CFLAGS = -Wall -Wextra -Werror -std=c11 -pedantic -O2
 CXX = g++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++17 -pedantic -O2
+CXXFLAGS = -Wall -Wextra -Werror -std=c++20 -pedantic -O2
 
 .PHONY: all clean
 
