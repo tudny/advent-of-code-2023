@@ -1,0 +1,16 @@
+[package]
+name = "day2"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "task1"
+path = "src/task1.rs"
+
+[[bin]]
+name = "task2"
+path = "src/task2.rs"
+
+[dependencies]
+regex = "1.10.2"
+lazy_static = "1.4.0"
